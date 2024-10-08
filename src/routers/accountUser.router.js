@@ -6,11 +6,8 @@ const {
     login
 } = require("../App/controllers/accountUser.controllers")
 
-router
-    .route("/login")
-    .post(login);
-router
-    .route("/register")
-    .post(register);
 
-Module.exports = router;
+router.post('/register', register);
+router.post('/login', login);
+
+module.exports = router;
