@@ -1,24 +1,13 @@
 const mongoose = require('mongoose');
 
-<<<<<<< HEAD
-const accountSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true
-    },
-    email: {
-=======
 const accountSchema = mongoose.Schema({
     userEmail: {
->>>>>>> tuan
         type: String,
         required: true,
         unique: true
     },
     password: {
         type: String,
-<<<<<<< HEAD
-=======
         required: true
     },
     name: {
@@ -40,7 +29,6 @@ const accountSchema = mongoose.Schema({
     },
     address: {
         type: String,
->>>>>>> tuan
         required: true
     },
     role: {
@@ -49,4 +37,6 @@ const accountSchema = mongoose.Schema({
         default: "Người tham gia sự kiện"
     }
 })
-module.exports = mongoose.model("accountUser", accountSchema)
+
+
+module.exports = mongoose.model("accountUser", acountSchema)
