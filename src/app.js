@@ -9,6 +9,15 @@ accountRoutes(app);
 
 connectDB();
 
+<<<<<<< HEAD
 app.listen(3000, () => {
     console.log("Server run at port 3000");
+=======
+app.get('/', (req, res) => {
+    res.send('Welcome to the homepage!');
+});
+
+app.listen(5000, () => {
+    console.log("Server run at port 5000");
+>>>>>>> tuan
 })
