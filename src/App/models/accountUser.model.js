@@ -16,10 +16,13 @@ const accountSchema = mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ["Người tham gia sự kiện", "Nhà tổ chức sự kiện"],
-        default: "Người tham gia sự kiện"
-    }
-})
+        enum: ["attendee", "organizer", "admin"],
+        default: "attendee"
+    },
+    token: [{
+        type: String
+    }]
+}, { timestamps: true });
 
 
-module.exports = mongoose.model("accountUser", acountSchema)
+module.exports = mongoose.model("accountUser", accountSchema)
