@@ -14,10 +14,44 @@ const accountSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    image: {
+        type: String,
+        default: null
+    },
+    gender: {
+        type: Number, // 0 nam 1 nu
+        default: null
+    },
+    phone: {
+        type: String,
+        default: null
+    },
+    description: {
+        type: String,
+        default: null
+    },
+    address: {
+        type: String,
+        default: null
+    },
+    hobbies: {
+        type: [String],
+        default: null
+    },
     role: {
         type: String,
         enum: ["attendee", "organizer", "admin"],
         default: "attendee"
+    },
+    activeSpeaker: {
+        type: Boolean,
+        default: false
+    },
+    speaker_start_time: {
+        type: Date
+    },
+    speaker_end_time: {
+        type: Date
     },
     token: [{
         type: String

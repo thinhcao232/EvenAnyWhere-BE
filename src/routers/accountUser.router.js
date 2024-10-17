@@ -7,8 +7,8 @@ router.post("/register", AccountController.register);
 router.post("/login", AccountController.login);
 router.post("/auth/logout", authen, AccountController.logout);
 router.get("/refresh-token/:id", AccountController.refreshToken);
-
+router.post("/auth/updateProfile", authen, AccountController.updateProfile);
 //router.post("/auth/changePassword", authen, AccountController.changePassword);
-//router.post("/auth/cap-nhat", authen, AccountController.updateProfile);
+
 
 module.exports = router;
