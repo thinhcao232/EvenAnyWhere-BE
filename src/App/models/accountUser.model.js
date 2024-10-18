@@ -16,7 +16,7 @@ const accountSchema = mongoose.Schema({
     },
     image: {
         type: String,
-        default: null
+        default: "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.pinterest.com%2Fvaleriy32fsm%2Fuser%2F&psig=AOvVaw0HQ7d2MmjsvtUaCxUomcY1&ust=1729326680723000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCNjWy4vCl4kDFQAAAAAdAAAAABAE"
     },
     gender: {
         type: Number, // 0 nam 1 nu

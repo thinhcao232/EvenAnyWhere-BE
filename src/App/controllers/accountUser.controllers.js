@@ -5,6 +5,8 @@ const checkPassword = require("../../utils/checkPassword");
 const AccountModal = require("../models/accountUser.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 
 const saltRounds = 10;
 
@@ -216,29 +218,97 @@ class Account {
     }
 
 
-    // async changePassword(req, res) {
-    //     try {
-    //         const { _id } = req.user;
-    //         const { password, newPassword } = req.body;
-    //         console.log(_id, password, newPassword);
-    //         const user = await AccountModal.findById(_id);
-    //         const isMatchPW = await bcrypt.compare(password, user.password);
+    async changePassword(req, res) {
+        try {
+            const { _id } = req.user; 
+            const { password, newPassword, confirmPassword } = req.body;
+    
+            if (newPassword !== confirmPassword) {
+                return res.status(403).json({
+                    title: "Lỗi",
+                    message: "Mật khẩu mới và xác nhận mật khẩu không khớp",
+                });
+            }
+    
+            const user = await AccountModal.findById(_id);
+    
+            const isMatchPW = await bcrypt.compare(password, user.password);
+            if (!isMatchPW) {
+                return res.status(403).json({
+                    title: "Lỗi",
+                    message: "Mật khẩu cũ không đúng",
+                });
+            }
 
-    //         if (!isMatchPW) {
-    //             return res.status(403).json({
-    //                 title: "Lỗi ",
-    //                 message: "Mật khẩu sai",
-    //             });
-    //         }
+            const newHashPass = await bcrypt.hash(newPassword, saltRounds);
+    
+            await AccountModal.findByIdAndUpdate(_id, { password: newHashPass });
+    
+            res.status(200).json({ 
+                title: "Thành công", 
+                message: "Đổi mật khẩu thành công" 
+            });
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    } 
 
-    //         const newHashPass = await bcrypt.hash(newPassword, saltRounds);
+    async resetPassword(req, res) {
+        try {
+            const { email } = req.body;
 
-    //         await AccountModal.findByIdAndUpdate(_id, { password: newHashPass });
-    //         res.status(200).json({ title: "Thành công", message: "Đổi mật khẩu thành công" });
-    //     } catch (error) {
-    //         res.status(500).json({ message: error.message });
-    //     }
-    // }
+            const user = await AccountModal.findOne({ email });
+            if (!user) {
+                return res.status(404).json({
+                    title: "Lỗi",
+                    message: "Email không tồn tại trong hệ thống",
+                });
+            }
+
+            const newPassword = crypto.randomBytes(4).toString('hex'); 
+
+
+            const hashPassword = await bcrypt.hash(newPassword, saltRounds);
+            await AccountModal.findByIdAndUpdate(user._id, { password: hashPassword });
+
+            const transporter = nodemailer.createTransport({
+                service: 'gmail', 
+                auth: {
+                    user: process.env.EMAIL_USER, 
+                    pass: process.env.EMAIL_PASSWORD, 
+                },
+            });
+
+            const mailOptions = {
+                from: process.env.EMAIL_USER, // email gửi
+                to: user.email,
+                subject: 'Mật khẩu mới cho tài khoản của bạn trong ứng dụng EventAnywhere',
+                text: `Xin chào ${user.name},
+
+Chúng tôi đã nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn tại ứng dụng EventAnywhere. Đây là mật khẩu mới của bạn:
+
+        Mật Khẩu Mới: ${newPassword}
+
+Vì lý do bảo mật, chúng tôi khuyên bạn nên đăng nhập vào tài khoản của mình và thay đổi mật khẩu này ngay sau khi nhận được email này. 
+Nếu bạn không yêu cầu đặt lại mật khẩu, xin vui lòng liên hệ với bộ phận hỗ trợ của chúng tôi ngay lập tức để đảm bảo tài khoản của bạn an toàn.
+Cảm ơn bạn đã tin tưởng và sử dụng EventAnywhere.
+
+Trân trọng,
+Đội ngũ hỗ trợ EventAnywhere.`,
+            };
+
+            await transporter.sendMail(mailOptions);
+
+            return res.status(200).json({
+                title: "Thành công",
+                message: "Mật khẩu mới đã được gửi vào email của bạn",
+            });
+
+        } catch (error) {
+            console.error("Error resetting password:", error);
+            return res.status(500).json({ message: "Đã xảy ra lỗi trong quá trình đặt lại mật khẩu" });
+        }
+    }
 
     async updateProfile(req, res) {
         try {
@@ -249,7 +319,7 @@ class Account {
                 name,
                 image,
                 phone,
-                gender: Number(gender), // đảm bảo rằng gender là số
+                gender: Number(gender), // đảm bảo rằng gender là số    0 nam 1 nữa
                 description,
                 address,
                 hobbies

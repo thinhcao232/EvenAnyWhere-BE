@@ -8,7 +8,7 @@ router.post("/login", AccountController.login);
 router.post("/auth/logout", authen, AccountController.logout);
 router.get("/refresh-token/:id", AccountController.refreshToken);
 router.post("/auth/updateProfile", authen, AccountController.updateProfile);
-//router.post("/auth/changePassword", authen, AccountController.changePassword);
-
+router.post("/reset-password", AccountController.resetPassword);
+router.post("/auth/changePassword", authen, AccountController.changePassword);
 
 module.exports = router;
