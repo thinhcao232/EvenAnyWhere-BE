@@ -1,14 +1,11 @@
 const mongoose = require('mongoose');
 
 const eventSchema = new mongoose.Schema({
-    event_id: {
-        type: String,
-        default: () => new mongoose.Types.ObjectId().toString(),  
+    id: {
+        type: mongoose.Schema.Types.UUID,
+        default: () => new mongoose.Types.UUID(),
+        primaryKey: true, // Thay đổi nếu cần thiết
         unique: true
-    },
-    organizer_id: {
-        type: String,
-        required: true
     },
     title: {
         type: String,
@@ -17,32 +14,51 @@ const eventSchema = new mongoose.Schema({
     description: {
         type: String
     },
-    keywords: {
-        type: Map,  
-        of: String
-    },
     date: {
-        type: Date
+        type: Date,
+        required: true
     },
     location: {
+        type: String,
+        required: true
+    },
+    organizer: {
+        type: mongoose.Schema.Types.UUID,
+        required: true
+    },
+    maxAttendees: {
+        type: Number
+    },
+    price: {
+        type: mongoose.Types.Decimal128
+    },
+    totalSessions: {
+        type: Number
+    },
+    image: {
         type: String
     },
-    banner: {
-        type: String  
+    hasLiveStream: {
+        type: Boolean,
+        default: false
     },
-    created_at: {
+    category_id: {
+        type: mongoose.Schema.Types.UUID
+    },
+    createdAt: {
         type: Date,
         default: Date.now
     },
-    updated_at: {
+    updatedAt: {
         type: Date,
         default: Date.now
-    },
-    status: {
-        type: String,
-        enum: ["Hoạt động", "Không hoạt động", "Đã hủy"],
-        default: "Không hoạt động"
     }
+});
+
+
+eventSchema.pre('save', function(next) {
+    this.updatedAt = Date.now();
+    next();
 });
 
 module.exports = mongoose.model('Event', eventSchema);
