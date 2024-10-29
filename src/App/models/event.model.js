@@ -1,34 +1,13 @@
 const mongoose = require('mongoose');
 
 const eventSchema = new mongoose.Schema({
-<<<<<<< HEAD
     title: {
-        type: String,
-        required: true
-    },
-    organizer_id: {
-=======
-    id: {
-        type: mongoose.Schema.Types.UUID,
-        default: () => new mongoose.Types.UUID(),
-        primaryKey: true, // Thay đổi nếu cần thiết
-        unique: true
-    },
-    title: {
->>>>>>> 2a6a66530e1b559e2509861eab8f68b410d4c470
         type: String,
         required: true
     },
     description: {
         type: String
     },
-<<<<<<< HEAD
-    keywords: {
-        type: Map,
-        of: String
-    },
-=======
->>>>>>> 2a6a66530e1b559e2509861eab8f68b410d4c470
     date: {
         type: Date,
         required: true
@@ -53,14 +32,9 @@ const eventSchema = new mongoose.Schema({
     image: {
         type: String
     },
-<<<<<<< HEAD
-    banner: {
-        type: String
-=======
     hasLiveStream: {
         type: Boolean,
         default: false
->>>>>>> 2a6a66530e1b559e2509861eab8f68b410d4c470
     },
     category_id: {
         type: mongoose.Schema.Types.UUID
@@ -75,9 +49,6 @@ const eventSchema = new mongoose.Schema({
     }
 });
 
-<<<<<<< HEAD
-module.exports = mongoose.model('Event', eventSchema);
-=======
 
 eventSchema.pre('save', function(next) {
     this.updatedAt = Date.now();
@@ -85,4 +56,3 @@ eventSchema.pre('save', function(next) {
 });
 
 module.exports = mongoose.model('Event', eventSchema);
->>>>>>> 2a6a66530e1b559e2509861eab8f68b410d4c470
