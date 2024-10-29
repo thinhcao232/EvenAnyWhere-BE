@@ -1,16 +1,11 @@
 const mongoose = require('mongoose');
 
 const eventSchema = new mongoose.Schema({
-    event_id: {
-        type: String,
-        default: () => new mongoose.Types.ObjectId().toString(),  
-        unique: true
-    },
-    organizer_id: {
+    title: {
         type: String,
         required: true
     },
-    title: {
+    organizer_id: {
         type: String,
         required: true
     },
@@ -18,7 +13,7 @@ const eventSchema = new mongoose.Schema({
         type: String
     },
     keywords: {
-        type: Map,  
+        type: Map,
         of: String
     },
     date: {
@@ -28,7 +23,7 @@ const eventSchema = new mongoose.Schema({
         type: String
     },
     banner: {
-        type: String  
+        type: String
     },
     created_at: {
         type: Date,

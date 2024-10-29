@@ -10,5 +10,6 @@ router.get("/refresh-token/:id", AccountController.refreshToken);
 router.post("/auth/updateProfile", authen, AccountController.updateProfile);
 router.post("/reset-password", AccountController.resetPassword);
 router.post("/auth/changePassword", authen, AccountController.changePassword);
-
+// Route để người dùng trở thành organizer
+router.patch("/organizerRole", authen, AccountController.becomeOrganizer);
 module.exports = router;

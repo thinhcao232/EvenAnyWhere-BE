@@ -12,7 +12,7 @@ async function organizerRole(req, res, next) {
     }
     return res.status(401).json({
         title: "không đủ quyền",
-        message: "Bạn không đủ quyền để truy cập vào quyền nhà tổ chức",
+        message: "Bạn không không phải là organizer",
     });
 }
 

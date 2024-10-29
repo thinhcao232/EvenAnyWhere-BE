@@ -220,18 +220,18 @@ class Account {
 
     async changePassword(req, res) {
         try {
-            const { _id } = req.user; 
+            const { _id } = req.user;
             const { password, newPassword, confirmPassword } = req.body;
-    
+
             if (newPassword !== confirmPassword) {
                 return res.status(403).json({
                     title: "Lỗi",
                     message: "Mật khẩu mới và xác nhận mật khẩu không khớp",
                 });
             }
-    
+
             const user = await AccountModal.findById(_id);
-    
+
             const isMatchPW = await bcrypt.compare(password, user.password);
             if (!isMatchPW) {
                 return res.status(403).json({
@@ -241,17 +241,17 @@ class Account {
             }
 
             const newHashPass = await bcrypt.hash(newPassword, saltRounds);
-    
+
             await AccountModal.findByIdAndUpdate(_id, { password: newHashPass });
-    
-            res.status(200).json({ 
-                title: "Thành công", 
-                message: "Đổi mật khẩu thành công" 
+
+            res.status(200).json({
+                title: "Thành công",
+                message: "Đổi mật khẩu thành công"
             });
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
-    } 
+    }
 
     async resetPassword(req, res) {
         try {
@@ -265,17 +265,17 @@ class Account {
                 });
             }
 
-            const newPassword = crypto.randomBytes(4).toString('hex'); 
+            const newPassword = crypto.randomBytes(4).toString('hex');
 
 
             const hashPassword = await bcrypt.hash(newPassword, saltRounds);
             await AccountModal.findByIdAndUpdate(user._id, { password: hashPassword });
 
             const transporter = nodemailer.createTransport({
-                service: 'gmail', 
+                service: 'gmail',
                 auth: {
-                    user: process.env.EMAIL_USER, 
-                    pass: process.env.EMAIL_PASSWORD, 
+                    user: process.env.EMAIL_USER,
+                    pass: process.env.EMAIL_PASSWORD,
                 },
             });
 
@@ -331,6 +331,30 @@ Trân trọng,
             res.status(200).json({...user._doc });
         } catch (error) {
             res.status(500).json({ message: error.message });
+        }
+    }
+
+    async becomeOrganizer(req, res) {
+        const userId = req.user._id; // Lấy user ID từ token đã xác thực
+        try {
+            const account = await AccountModal.findById(userId);
+            if (!account) {
+                return res.status(404).json({ title: "Lỗi", message: "Người dùng không tồn tại" });
+            }
+            if (account.role === 'organizer') {
+                return res.status(400).json({ title: "Lỗi", message: "Bạn đã là tổ chức viên" });
+            }
+            account.role = 'organizer';
+            await account.save();
+
+            return res.status(200).json({
+                title: "Thành công",
+                message: "Become organizer",
+                account
+            });
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ title: "Lỗi", message: "Có lỗi xảy ra khi cập nhật vai trò" });
         }
     }
 
