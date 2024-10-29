@@ -18,10 +18,6 @@ const accountSchema = mongoose.Schema({
         type: String,
         default: "https://cdn1.iconfinder.com/data/icons/user-interface-664/24/User-512.png"
     },
-    gender: {
-        type: Number, // 0 nam 1 nu
-        default: null
-    },
     phone: {
         type: String,
         default: null
@@ -38,10 +34,6 @@ const accountSchema = mongoose.Schema({
         type: [String],
         default: null
     },
-    joinedEvents: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "events"
-    }], ////các sự kiện đã join
     role: {
         type: String,
         enum: ["attendee", "organizer"],

@@ -12,7 +12,6 @@ router.post("/reset-password", AccountController.resetPassword);
 router.post("/auth/changePassword", authen, AccountController.changePassword);
 // Route để người dùng trở thành organizer
 router.patch("/organizerRole", authen, AccountController.becomeOrganizer);
-//check event join
-router.post("/event/:id/join", authen, AccountController.joinEvent);
+
 
 module.exports = router;

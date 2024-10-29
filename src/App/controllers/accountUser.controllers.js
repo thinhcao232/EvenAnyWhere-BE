@@ -358,38 +358,6 @@ Trân trọng,
         }
     }
 
-    async joinEvent(req, res) {
-        try {
-            const { id: eventId } = req.params; // Event ID from URL parameter
-            const userId = req.user._id; // User ID from authenticated user
-
-            // Find the user and check if they have already joined the event
-            const user = await AccountModal.findById(userId);
-            if (!user) {
-                return res.status(404).json({ title: "Lỗi", message: "Người dùng không tồn tại" });
-            }
-
-            // Check if the event is already in the joinedEvents array
-            if (user.joinedEvents && user.joinedEvents.includes(eventId)) {
-                return res.status(400).json({ title: "Lỗi", message: "Bạn đã tham gia sự kiện này" });
-            }
-
-            // Add the event ID to the joinedEvents array
-            user.joinedEvents = [...user.joinedEvents, eventId];
-            await user.save();
-
-            return res.status(200).json({
-                title: "Thành công",
-                message: "Tham gia sự kiện thành công",
-                joinedEvents: user.joinedEvents
-            });
-        } catch (error) {
-            console.error("Error joining event:", error);
-            return res.status(500).json({ message: "Đã xảy ra lỗi trong quá trình tham gia sự kiện" });
-        }
-    }
-
-
 }
 
 module.exports = new Account();
