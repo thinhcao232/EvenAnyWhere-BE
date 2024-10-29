@@ -1,9 +1,18 @@
 const Event = require('../models/event.model');
 
 // Tạo mới sự kiện
-exports.createEvent = async (req, res) => {
+exports.createEvent = async(req, res) => {
     try {
-        const event = new Event(req.body);
+        const { title, description, date, location } = req.body;
+
+        const event = new Event({
+            title,
+            description,
+            date,
+            location,
+            organizer_id: req.body.organizer_id,
+            status: 'Không hoạt động',
+        });
         await event.save();
         res.status(201).json({
             message: 'Tạo sự kiện thành công!',
@@ -15,7 +24,7 @@ exports.createEvent = async (req, res) => {
 };
 
 // Lấy danh sách tất cả sự kiện
-exports.getAllEvents = async (req, res) => {
+exports.getAllEvents = async(req, res) => {
     try {
         const events = await Event.find().lean();
         res.status(200).json({
@@ -28,7 +37,7 @@ exports.getAllEvents = async (req, res) => {
 };
 
 // Lấy thông tin sự kiện theo ID
-exports.getEventById = async (req, res) => {
+exports.getEventById = async(req, res) => {
     try {
         const event = await Event.findById(req.params.id).lean();
         if (event) {
@@ -45,7 +54,7 @@ exports.getEventById = async (req, res) => {
 };
 
 // Cập nhật sự kiện theo ID
-exports.updateEvent = async (req, res) => {
+exports.updateEvent = async(req, res) => {
     try {
         const event = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true, lean: true });
         if (event) {
@@ -62,7 +71,7 @@ exports.updateEvent = async (req, res) => {
 };
 
 // Xóa sự kiện theo ID
-exports.deleteEvent = async (req, res) => {
+exports.deleteEvent = async(req, res) => {
     try {
         const event = await Event.findByIdAndDelete(req.params.id);
         if (event) {
@@ -76,13 +85,13 @@ exports.deleteEvent = async (req, res) => {
 };
 
 // Tìm kiếm sự kiện theo tên hoặc ký tự
-exports.searchEventsByTitle = async (req, res) => {
+exports.searchEventsByTitle = async(req, res) => {
     try {
-        const keyword = req.query.keyword || ''; 
+        const keyword = req.query.keyword || '';
         const events = await Event.find({
-            title: { $regex: keyword, $options: 'i' } 
+            title: { $regex: keyword, $options: 'i' }
         }).lean();
-        
+
         res.status(200).json({
             message: 'Tìm kiếm sự kiện thành công!',
             events

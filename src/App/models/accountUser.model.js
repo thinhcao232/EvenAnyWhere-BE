@@ -38,6 +38,10 @@ const accountSchema = mongoose.Schema({
         type: [String],
         default: null
     },
+    joinedEvents: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "events"
+    }], ////các sự kiện đã join
     role: {
         type: String,
         enum: ["attendee", "organizer"],

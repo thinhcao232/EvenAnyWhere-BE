@@ -5,8 +5,14 @@ const eventSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    organizer_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'accountusers'
+    },
     description: {
-        type: String
+        type: String,
+        required: true
     },
     date: {
         type: Date,
@@ -14,10 +20,6 @@ const eventSchema = new mongoose.Schema({
     },
     location: {
         type: String,
-        required: true
-    },
-    organizer: {
-        type: mongoose.Schema.Types.UUID,
         required: true
     },
     maxAttendees: {
@@ -37,7 +39,7 @@ const eventSchema = new mongoose.Schema({
         default: false
     },
     category_id: {
-        type: mongoose.Schema.Types.UUID
+        type: String
     },
     createdAt: {
         type: Date,
@@ -47,12 +49,6 @@ const eventSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     }
-});
-
-
-eventSchema.pre('save', function(next) {
-    this.updatedAt = Date.now();
-    next();
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('Event', eventSchema);
