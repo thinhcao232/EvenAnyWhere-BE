@@ -18,6 +18,5 @@ router.put("/update/:id", authen,autho, EventController.updateEvent);
 // Xóa sự kiện theo ID, yêu cầu xác thực
 router.delete("/delete/:id", authen,autho, EventController.deleteEvent);
 
-router.get('/search', EventController.searchEventsByTitle);
 
 module.exports = router;

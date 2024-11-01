@@ -5,6 +5,7 @@ const eventParticipants = require("./eventParticipation.router")
 const livestreamInfo = require("./livestreamInfo.router")
 const admin = require("./admin.router")
 const category = require("./categoryEvent.router")
+const homeRouter = require('./home.router');
 module.exports = (app) => {
     app.use("/accounts", accountRouter);
     app.use("/event", eventRouter);
@@ -13,4 +14,5 @@ module.exports = (app) => {
     app.use("/livestreamInfo", livestreamInfo)
     app.use("/admin", admin)
     app.use("/category", category)
+    app.use("/home",homeRouter);
 }

@@ -22,6 +22,10 @@ const eventSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    organizer: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+    },
     maxAttendees: {
         type: Number
     },
@@ -39,7 +43,7 @@ const eventSchema = new mongoose.Schema({
         default: false
     },
     category_id: {
-        type: String
+        type: mongoose.Schema.Types.ObjectId
     },
     createdAt: {
         type: Date,
@@ -47,8 +51,14 @@ const eventSchema = new mongoose.Schema({
     },
     updatedAt: {
         type: Date,
-        default: Date.now
+        default: Date.now   
     }
-}, { timestamps: true });
+});
+
+
+eventSchema.pre('save', function(next) {
+    this.updatedAt = Date.now();
+    next();
+});
 
 module.exports = mongoose.model('Event', eventSchema);
