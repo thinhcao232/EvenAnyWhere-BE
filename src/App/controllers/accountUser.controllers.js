@@ -1,4 +1,4 @@
-const { userRoles, userGender } = require("../../utils/constant");
+//const { userRoles, userGender } = require("../../utils/constant");
 const { generateRefreshToken, generateAccessToken } = require("../../utils/generationToken");
 const isEmail = require("../../utils/isEmail");
 const checkPassword = require("../../utils/checkPassword");
@@ -319,7 +319,6 @@ Trân trọng,
                 name,
                 image,
                 phone,
-                gender: Number(gender), // đảm bảo rằng gender là số    0 nam 1 nữa
                 description,
                 address,
                 hobbies
