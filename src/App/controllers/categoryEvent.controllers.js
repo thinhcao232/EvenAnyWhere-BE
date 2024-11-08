@@ -24,16 +24,16 @@ exports.getAllCategories = async(req, res) => {
     }
 };
 
-// exports.getCategoryById = async(req, res) => {
-//     const { id } = req.params;
-//     try {
-//         const category = await CategoryEvent.findById(id);
-//         if (!category) return res.status(404).json({ message: 'Không tìm thấy danh mục' });
-//         res.status(200).json(category);
-//     } catch (error) {
-//         res.status(500).json({ message: 'Lỗi lấy danh mục', error });
-//     }
-// };
+exports.getCategoryById = async(req, res) => {
+    const { id } = req.params;
+    try {
+        const category = await CategoryEvent.findById(id);
+        if (!category) return res.status(404).json({ message: 'Không tìm thấy danh mục' });
+        res.status(200).json(category);
+    } catch (error) {
+        res.status(500).json({ message: 'Lỗi lấy danh mục', error });
+    }
+};
 
 exports.updateCategory = async(req, res) => {
     const { id } = req.params;

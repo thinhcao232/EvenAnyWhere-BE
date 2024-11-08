@@ -22,18 +22,8 @@ const eventSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    organizer: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true
-    },
-    maxAttendees: {
-        type: Number
-    },
     price: {
         type: mongoose.Types.Decimal128
-    },
-    totalSessions: {
-        type: Number
     },
     image: {
         type: String
@@ -51,7 +41,7 @@ const eventSchema = new mongoose.Schema({
     },
     updatedAt: {
         type: Date,
-        default: Date.now   
+        default: Date.now
     }
 });
 

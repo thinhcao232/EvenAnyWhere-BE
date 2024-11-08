@@ -36,7 +36,7 @@ const accountSchema = mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ["attendee", "organizer"],
+        enum: ["attendee", "organizer", "block"],
         default: "attendee"
     },
     activeSpeaker: {

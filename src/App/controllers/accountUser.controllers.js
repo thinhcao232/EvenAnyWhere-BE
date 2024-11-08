@@ -312,7 +312,7 @@ Trân trọng,
 
     async updateProfile(req, res) {
         try {
-            const { name, image, phone, gender, description, address, hobbies } = req.body;
+            const { name, image, phone, description, address, hobbies } = req.body;
             const { _id: userId } = req.user;
 
             await AccountModal.findByIdAndUpdate(userId, {
@@ -324,14 +324,30 @@ Trân trọng,
                 hobbies
             });
 
-            const user = await AccountModal.findById(userId).select("name image phone gender description address hobbies role email _id");
-
+            const user = await AccountModal.findById(userId).select("name image phone gender description address hobbies role email _id")
 
             res.status(200).json({...user._doc });
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
     }
+    async getUser(req, res) {
+        try {
+            const userId = req.user._id;
+
+            const user = await AccountModal.findById(userId).select("-password");
+
+            if (!user) {
+                return res.status(404).json({ title: "Lỗi", message: "Người dùng không tồn tại" });
+            }
+
+            return res.status(200).json(user);
+        } catch (error) {
+            console.error("Error fetching user data:", error);
+            return res.status(500).json({ message: "Đã xảy ra lỗi trong quá trình lấy thông tin người dùng" });
+        }
+    }
+
 
     async becomeOrganizer(req, res) {
         const userId = req.user._id; // Lấy user ID từ token đã xác thực

@@ -2,7 +2,8 @@ const Session = require('../models/session.model');
 
 exports.createSession = async(req, res) => {
     try {
-        const { event_id, title, description, start_time, end_time, location, maxAttendees, isLiveStream } = req.body;
+        const { event_id } = req.params;
+        const { title, description, start_time, end_time, location, maxAttendees, isLiveStream } = req.body;
 
         const newSession = new Session({
             event_id,
@@ -13,8 +14,6 @@ exports.createSession = async(req, res) => {
             location,
             maxAttendees,
             isLiveStream,
-            createdAt: new Date(),
-            updatedAt: new Date(),
         });
 
         const savedSession = await newSession.save();

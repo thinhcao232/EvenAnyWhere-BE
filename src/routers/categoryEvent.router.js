@@ -6,7 +6,7 @@ const authen = require("../App/middlewares/authen");
 
 router.post('/add', authen, categoryController.createCategory);
 router.get('/list', authen, categoryController.getAllCategories);
-//router.get('/:id', categoryController.getCategoryById);
+router.get('/:id', categoryController.getCategoryById);
 router.put('/update/:id', authen, categoryController.updateCategory);
 router.delete('/delete/:id', authen, categoryController.deleteCategory);
 

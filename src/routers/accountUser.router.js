@@ -7,9 +7,10 @@ router.post("/register", AccountController.register);
 router.post("/login", AccountController.login);
 router.post("/auth/logout", authen, AccountController.logout);
 router.get("/refresh-token/:id", AccountController.refreshToken);
-router.post("/auth/updateProfile", authen, AccountController.updateProfile);
+router.put("/updateProfile", authen, AccountController.updateProfile);
 router.post("/reset-password", AccountController.resetPassword);
-router.post("/auth/changePassword", authen, AccountController.changePassword);
+router.post("/changePassword", authen, AccountController.changePassword);
+router.get("/info", authen, AccountController.getUser);
 // Route để người dùng trở thành organizer
 router.patch("/organizerRole", authen, AccountController.becomeOrganizer);
 
