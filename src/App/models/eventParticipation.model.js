@@ -3,12 +3,12 @@ const mongoose = require('mongoose');
 const eventParticipationSchema = new mongoose.Schema({
     account_id: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'accountusers',
+        ref: 'accountUser',
         required: true,
     },
     event_id: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'events',
+        ref: 'Event',
         required: true,
     },
     hasJoin: {

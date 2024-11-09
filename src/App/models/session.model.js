@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const sessionSchema = mongoose.Schema({
     event_id: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'events',
+        ref: 'Event',
         required: true,
         unique: true
     },

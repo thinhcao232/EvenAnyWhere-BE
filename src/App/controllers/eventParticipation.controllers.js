@@ -4,16 +4,13 @@ exports.joinEvent = async(req, res) => {
     try {
         const { userId, eventId } = req.body;
 
-        // Kiểm tra nếu `userId` hoặc `eventId` không tồn tại trong yêu cầu
         if (!userId || !eventId) {
             return res.status(400).json({ message: 'userId và eventId là bắt buộc.' });
         }
 
-        // Kiểm tra bản ghi tham gia nếu đã tồn tại với `userId` và `eventId`
         let participation = await EventParticipation.findOne({ account_id: userId, event_id: eventId });
 
         if (!participation) {
-            // Nếu không tìm thấy bản ghi, thêm `userId` và `eventId` vào với `hasJoin: false`
             participation = new EventParticipation({ account_id: userId, event_id: eventId, hasJoin: false });
             await participation.save();
         }

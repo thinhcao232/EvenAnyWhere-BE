@@ -36,18 +36,16 @@ const accountSchema = mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ["attendee", "organizer", "block"],
+        enum: ["attendee", "organizer"],
         default: "attendee"
     },
     activeSpeaker: {
         type: Boolean,
         default: false
     },
-    speaker_start_time: {
-        type: Date
-    },
-    speaker_end_time: {
-        type: Date
+    activeBlock: {
+        type: Boolean,
+        default: false
     },
     token: [{
         type: String
