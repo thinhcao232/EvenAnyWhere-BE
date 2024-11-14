@@ -32,7 +32,7 @@ const accountSchema = mongoose.Schema({
     },
     hobbies: {
         type: [String],
-        default: null
+        default: []
     },
     role: {
         type: String,

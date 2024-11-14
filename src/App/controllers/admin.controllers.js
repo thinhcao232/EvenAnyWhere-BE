@@ -4,9 +4,7 @@ const checkPassword = require("../../utils/checkPassword");
 const AdminModel = require("../models/admin.model");
 //const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { compare } = require("bcrypt");
-const adminModel = require("../models/admin.model");
-
+const AccountUser = require("../models/accountUser.model");
 //const saltRounds = 10;
 
 class AdminController {
@@ -168,6 +166,30 @@ class AdminController {
             res.status(500).json({ message: error.message });
         }
     }
+    async lockAccount(req, res) {
+        try {
+            const { email, lock } = req.body; // Expecting `email` and `lock` in the request body
+
+            const account = await AccountUser.findOneAndUpdate({
+                email
+            }, {
+                activeBlock: lock
+            }, {
+                new: true
+            });
+
+            if (!account) {
+                return res.status(404).json({ title: "Lỗi", message: "Không tìm thấy tài khoản người dùng với email này" });
+            }
+
+            const status = lock ? "đã bị khóa" : "đã được mở khóa";
+            return res.status(200).json({ message: `Tài khoản ${status}` });
+        } catch (error) {
+            console.error("Error locking/unlocking account:", error);
+            res.status(500).json({ message: error.message });
+        }
+    }
+
 }
 
 module.exports = new AdminController();

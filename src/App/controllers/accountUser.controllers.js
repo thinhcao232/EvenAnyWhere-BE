@@ -7,7 +7,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
-
+const upload = require('../../utils/uploadImage');
 const saltRounds = 10;
 
 class Account {
@@ -91,11 +91,16 @@ class Account {
             const isMatchPW = await bcrypt.compare(password, user.password);
             if (!isMatchPW) {
                 return res.status(403).json({
-                    title: "Lỗi ",
+                    title: "Lỗi",
                     message: "Email hoặc mật khẩu không đúng",
                 });
             }
-
+            if (user.activeBlock) {
+                return res.status(403).json({
+                    title: "Lỗi Không Thể Đăng Nhập ",
+                    message: "Tài khoản của bạn đã bị khóa"
+                });
+            }
             // create tokens
             const refreshToken = generateRefreshToken(user._id);
             const accessToken = generateAccessToken(user._id);
@@ -312,21 +317,33 @@ Trân trọng,
 
     async updateProfile(req, res) {
         try {
-            const { name, image, phone, description, address, hobbies } = req.body;
-            const { _id: userId } = req.user;
+            upload.single('image')(req, res, async(err) => {
+                if (err) {
+                    return res.status(500).json({ message: 'Error uploading file' });
+                }
 
-            await AccountModal.findByIdAndUpdate(userId, {
-                name,
-                image,
-                phone,
-                description,
-                address,
-                hobbies
+                const { name, phone, description, address, hobbies } = req.body;
+                const { _id: userId } = req.user;
+
+                let image;
+                if (req.file) {
+                    image = `${req.protocol}://${req.get("host")}/public/images/${req.file.filename}`;
+                }
+
+                const updatedUserData = {
+                    name,
+                    phone,
+                    description,
+                    address,
+                    hobbies,
+                };
+                if (image) updatedUserData.image = image;
+                await AccountModal.findByIdAndUpdate(userId, updatedUserData);
+
+                const user = await AccountModal.findById(userId).select("name image phone  description address hobbies _id");
+
+                res.status(200).json({...user._doc });
             });
-
-            const user = await AccountModal.findById(userId).select("name image phone gender description address hobbies role email _id")
-
-            res.status(200).json({...user._doc });
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
