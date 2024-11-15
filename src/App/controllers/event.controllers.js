@@ -1,53 +1,108 @@
 const Event = require('../models/event.model');
-
+const uploadEventImages = require('../../utils/uploadEventImages');
 // Tạo mới sự kiện
+
 exports.createEvent = async(req, res) => {
-    try {
-        const organizer_id = req.user._id;
-        // Chuyển đổi chuỗi ngày từ định dạng HH:mm:ss DD-MM-YYYY sang định dạng ISO
-        const dateString = req.body.date; // Giả sử date được gửi từ frontend
-        const [time, dayMonthYear] = dateString.split(' '); // Tách giờ và ngày
-        const [day, month, year] = dayMonthYear.split('-'); // Tách ngày, tháng, năm
-        const [hours, minutes, seconds] = time.split(':'); // Tách giờ, phút, giây
 
-        const date = new Date(Date.UTC(year, month - 1, day, hours, minutes, seconds));
+    uploadEventImages(req, res, async(err) => {
+        if (err) {
+            return res.status(500).json({ message: 'Lỗi khi upload ảnh' });
+        } // tối đa 6 ảnh
 
-        const event = new Event({
-            ...req.body,
-            date,
-            organizer_id
-        });
-        await event.save();
-        res.status(201).json({
-            message: 'Tạo sự kiện thành công!',
-            event
-        });
-    } catch (error) {
-        res.status(400).json({ message: `Không thể tạo sự kiện: ${error.message}` });
-    }
+        try {
+            const organizer_id = req.user._id;
+            const { title, description, location, price, category_id } = req.body;
+
+            const { date } = req.body;
+            const dateString = date;
+            const [time, dayMonthYear] = dateString.split(' ');
+            if (!time || !dayMonthYear) {
+                return res.status(400).json({ message: 'Định dạng ngày không hợp lệ' });
+            }
+            const [day, month, year] = dayMonthYear.split('-');
+            const [hours, minutes, seconds] = time.split(':');
+            if (!day || !month || !year || !hours || !minutes || !seconds) {
+                return res.status(400).json({ message: 'Định dạng ngày hoặc giờ không hợp lệ' });
+            }
+
+            const eventDate = new Date(Date.UTC(year, month - 1, day, hours, minutes, seconds));
+            if (isNaN(eventDate.getTime())) {
+                return res.status(400).json({ message: 'Không thể chuyển đổi ngày thành định dạng hợp lệ' });
+            }
+
+            const images = req.files ? req.files.map(file => `${req.protocol}://${req.get('host')}/public/eventImage/${file.filename}`) : [];
+
+            const event = new Event({
+                title,
+                organizer_id,
+                description,
+                location,
+                price,
+                date: eventDate,
+                category_id,
+                images: images,
+            });
+
+            await event.save();
+            res.status(201).json({
+                message: 'Tạo sự kiện thành công!',
+                event
+            });
+        } catch (error) {
+            res.status(400).json({ message: `Không thể tạo sự kiện: ${error.message}` });
+        }
+    });
 };
-
 // Lấy danh sách tất cả sự kiện
 exports.getAllEvents = async(req, res) => {
     try {
+
         const events = await Event.find().lean();
+        const eventsWithImages = events.map(event => ({
+            ...event,
+
+            images: event.images && event.images.length > 0 ?
+                event.images.map(image => {
+
+                    if (image.startsWith('http')) {
+                        return image;
+                    }
+
+                    return `${req.protocol}://${req.get('host')}/public/eventImage/${image}`;
+                }) : []
+        }));
+
         res.status(200).json({
             message: 'Lấy danh sách sự kiện thành công!',
-            events
+            events: eventsWithImages
         });
     } catch (error) {
         res.status(500).json({ message: `Không thể lấy danh sách sự kiện: ${error.message}` });
     }
 };
 
+
+
 // Lấy thông tin sự kiện theo ID
 exports.getEventById = async(req, res) => {
     try {
+
         const event = await Event.findById(req.params.id).lean();
         if (event) {
+            const eventWithImages = {
+                ...event,
+                images: event.images && event.images.length > 0 ?
+                    event.images.map(image => {
+
+                        if (image.startsWith('http')) {
+                            return image;
+                        }
+                        return `${req.protocol}://${req.get('host')}/public/eventImage/${image}`;
+                    }) : []
+            };
             res.status(200).json({
                 message: 'Lấy thông tin sự kiện thành công!',
-                event
+                event: eventWithImages
             });
         } else {
             res.status(404).json({ message: 'Không tìm thấy sự kiện' });
@@ -57,33 +112,59 @@ exports.getEventById = async(req, res) => {
     }
 };
 
-// Cập nhật sự kiện theo ID
+
 exports.updateEvent = async(req, res) => {
-    try {
-        const { id } = req.params;
-
-        // Chuyển đổi chuỗi ngày từ định dạng HH:mm:ss DD-MM-YYYY sang định dạng ISO
-        if (req.body.date) {
-            const dateString = req.body.date; // Giả sử date được gửi từ frontend
-            const [time, dayMonthYear] = dateString.split(' '); // Tách giờ và ngày
-            const [day, month, year] = dayMonthYear.split('-'); // Tách ngày, tháng, năm
-            const [hours, minutes, seconds] = time.split(':'); // Tách giờ, phút, giây
-
-            req.body.date = new Date(Date.UTC(year, month - 1, day, hours, minutes, seconds));
+    uploadEventImages(req, res, async(err) => {
+        if (err) {
+            return res.status(500).json({ message: 'Lỗi khi upload ảnh' });
         }
 
-        const event = await Event.findByIdAndUpdate(id, req.body, { new: true, lean: true });
-        if (event) {
+        try {
+            const { id } = req.params;
+
+            // if (req.body.haslivestream) {
+            //     req.body.haslivestream = req.body.haslivestream === 'true';
+            // }
+
+            if (req.body.date) {
+                const dateString = req.body.date;
+                const [time, dayMonthYear] = dateString.split(' ');
+                if (!time || !dayMonthYear) {
+                    return res.status(400).json({ message: 'Định dạng ngày không hợp lệ' });
+                }
+
+                const [day, month, year] = dayMonthYear.split('-');
+                const [hours, minutes, seconds] = time.split(':');
+
+                if (!day || !month || !year || !hours || !minutes || !seconds) {
+                    return res.status(400).json({ message: 'Định dạng ngày hoặc giờ không hợp lệ' });
+                }
+
+                req.body.date = new Date(Date.UTC(year, month - 1, day, hours, minutes, seconds));
+
+                if (isNaN(req.body.date.getTime())) {
+                    return res.status(400).json({ message: 'Không thể chuyển đổi ngày thành định dạng hợp lệ' });
+                }
+            }
+            if (req.files && req.files.length > 0) {
+                const images = req.files.map(file => `${req.protocol}://${req.get('host')}/public/eventImage/${file.filename}`);
+                req.body.images = images;
+            }
+            // console.log('Request Body:', req.body);
+            // console.log(req.'Request Files:', req.files);
+            const event = await Event.findByIdAndUpdate(id, req.body, { new: true });
+            if (!event) {
+                return res.status(404).json({ message: 'Không tìm thấy sự kiện để cập nhật' });
+            }
+
             res.status(200).json({
                 message: 'Cập nhật sự kiện thành công!',
-                event
+                event,
             });
-        } else {
-            res.status(404).json({ message: 'Không tìm thấy sự kiện để cập nhật' });
+        } catch (error) {
+            res.status(500).json({ message: `Không thể cập nhật sự kiện: ${error.message}` });
         }
-    } catch (error) {
-        res.status(500).json({ message: `Không thể cập nhật sự kiện: ${error.message}` });
-    }
+    });
 };
 
 

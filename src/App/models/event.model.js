@@ -25,9 +25,10 @@ const eventSchema = new mongoose.Schema({
     price: {
         type: mongoose.Types.Decimal128
     },
-    image: {
-        type: String
-    },
+    images: {
+        type: [String],
+        default: []
+    }, // tối đa 6 ảnh
     hasLiveStream: {
         type: Boolean,
         default: false

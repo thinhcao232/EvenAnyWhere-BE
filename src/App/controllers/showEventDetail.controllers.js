@@ -70,7 +70,7 @@ exports.getEventDetails = async(req, res) => {
         res.status(200).json({
             id: event._id,
             title: event.title,
-            image: event.image,
+            image: event.images,
             description: event.description,
             date: event.date,
             location: event.location,

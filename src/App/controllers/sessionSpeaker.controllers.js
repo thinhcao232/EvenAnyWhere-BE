@@ -6,16 +6,14 @@ exports.addSpeakerByEmail = async(req, res) => {
         const { session_id, email, speaker_end_time } = req.body;
 
         const attendee = await AccountUser.findOne({ email });
-
         if (!attendee) {
             return res.status(404).json({ message: 'Người dùng không tồn tại' });
         }
-
-        if (attendee.activeSpeaker === true) {
-            return res.status(400).json({ message: 'Người dùng đã là speaker' });
+        const existingSessionSpeaker = await SessionSpeaker.findOne({ session_id, email });
+        if (existingSessionSpeaker) {
+            return res.status(400).json({ message: 'Người dùng đã là speaker trong phiên này' });
         }
 
-        // Chuyển đổi thời gian từ định dạng HH:mm:ss DD-MM-YYYY sang ISO cho speaker_end_time
         const [endTimeStr, endDateStr] = speaker_end_time.split(' ');
         const [endDay, endMonth, endYear] = endDateStr.split('-');
         const [endHour, endMinute, endSecond] = endTimeStr.split(':');

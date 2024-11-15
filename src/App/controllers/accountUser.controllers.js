@@ -1,4 +1,3 @@
-//const { userRoles, userGender } = require("../../utils/constant");
 const { generateRefreshToken, generateAccessToken } = require("../../utils/generationToken");
 const isEmail = require("../../utils/isEmail");
 const checkPassword = require("../../utils/checkPassword");
@@ -7,7 +6,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
-const upload = require('../../utils/uploadImage');
+const upload = require('../../utils/uploadImageAVT');
 const saltRounds = 10;
 
 class Account {
@@ -356,6 +355,11 @@ Trân trọng,
 
             if (!user) {
                 return res.status(404).json({ title: "Lỗi", message: "Người dùng không tồn tại" });
+            }
+
+            if (user.image && !user.image.startsWith("http")) {
+                const host = process.env.NODE_ENV === "development" ? "10.0.2.2:3000" : req.get("host");
+                user.image = `${req.protocol}://${host}/public/images/${user.image}`;
             }
 
             return res.status(200).json(user);
