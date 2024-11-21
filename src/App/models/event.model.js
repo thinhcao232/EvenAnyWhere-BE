@@ -22,19 +22,13 @@ const eventSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    price: {
-        type: mongoose.Types.Decimal128
-    },
     images: {
         type: [String],
         default: []
     }, // tối đa 6 ảnh
-    hasLiveStream: {
-        type: Boolean,
-        default: false
-    },
     category_id: {
-        type: mongoose.Schema.Types.ObjectId
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'CategoryEvent'
     },
     createdAt: {
         type: Date,

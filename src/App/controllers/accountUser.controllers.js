@@ -371,7 +371,7 @@ Trân trọng,
 
 
     async becomeOrganizer(req, res) {
-        const userId = req.user._id; // Lấy user ID từ token đã xác thực
+        const userId = req.user._id;
         try {
             const account = await AccountModal.findById(userId);
             if (!account) {

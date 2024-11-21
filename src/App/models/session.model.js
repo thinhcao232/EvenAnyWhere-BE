@@ -29,10 +29,6 @@ const sessionSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    isLiveStream: {
-        type: Boolean,
-        default: false
-    },
 
 }, { timestamps: true });
 

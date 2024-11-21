@@ -2,7 +2,7 @@ const Category = require('../models/categoryEvent.model'); // Import mô hình d
 const Event = require('../models/event.model');
 
 // Tìm kiếm sự kiện theo tên hoặc ký tự
-exports.searchEventsByTitle = async (req, res) => {
+exports.searchEventsByTitle = async(req, res) => {
     try {
         const keyword = req.query.keyword || '';
         const events = await Event.find({
@@ -19,17 +19,13 @@ exports.searchEventsByTitle = async (req, res) => {
 };
 
 // Lọc sự kiện (Thể loại, thời gian, vị trí)
-exports.filterEvents = async (req, res) => {
+exports.filterEvents = async(req, res) => {
     try {
         const { category_id, dateOption, location, date } = req.query;
         const filter = {};
-
-        // Lọc theo thể loại
         if (category_id) {
             filter.category_id = category_id;
         }
-
-        // Lọc theo ngày cụ thể (kiểm tra tính hợp lệ của date)
         if (date) {
             const selectedDate = new Date(date);
             if (!isNaN(selectedDate)) {
@@ -41,8 +37,6 @@ exports.filterEvents = async (req, res) => {
                 return res.status(400).json({ message: 'Ngày không hợp lệ' });
             }
         }
-
-        // Lọc theo ngày với dateOption
         if (dateOption) {
             const currentDate = new Date();
             if (dateOption === 'today') {
@@ -66,8 +60,6 @@ exports.filterEvents = async (req, res) => {
                 };
             }
         }
-
-        // Lọc theo vị trí
         if (location) {
             filter.location = { $regex: location, $options: 'i' };
         }
@@ -91,4 +83,3 @@ exports.filterEvents = async (req, res) => {
         res.status(500).json({ message: `Không thể lọc sự kiện: ${error.message}` });
     }
 };
-

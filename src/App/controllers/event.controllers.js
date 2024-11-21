@@ -11,7 +11,7 @@ exports.createEvent = async(req, res) => {
 
         try {
             const organizer_id = req.user._id;
-            const { title, description, location, price, category_id } = req.body;
+            const { title, description, location, category_id } = req.body;
 
             const { date } = req.body;
             const dateString = date;
@@ -37,7 +37,6 @@ exports.createEvent = async(req, res) => {
                 organizer_id,
                 description,
                 location,
-                price,
                 date: eventDate,
                 category_id,
                 images: images,
