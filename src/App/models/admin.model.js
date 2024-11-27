@@ -15,8 +15,8 @@ const adminSchema = new mongoose.Schema({
         required: true
     },
     image: {
-        type: String,
-        default: "https://www.shareicon.net/data/128x128/2016/07/26/802016_man_512x512.png"
+        type: String
+            //default: "https://www.shareicon.net/data/128x128/2016/07/26/802016_man_512x512.png"
     },
     phone: {
         type: String

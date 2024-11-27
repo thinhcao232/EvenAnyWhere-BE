@@ -1,7 +1,7 @@
     const mongoose = require('mongoose');
 
     const Notification = mongoose.Schema({
-        tille: {
+        title: {
             type: String,
             required: true
         },

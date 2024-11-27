@@ -8,6 +8,7 @@ const category = require("./categoryEvent.router")
 const homeRouter = require('./home.router');
 const sessionSpeakerRouter = require('./sessionSpeaker.router');
 const eventDetail = require("./showEventDetail.router");
+const notification = require('./notification.router');
 module.exports = (app) => {
     app.use("/accounts", accountRouter);
     app.use("/event", eventRouter);
@@ -19,4 +20,5 @@ module.exports = (app) => {
     app.use("/home", homeRouter);
     app.use("/speaker", sessionSpeakerRouter);
     app.use("/show/event", eventDetail);
+    app.use("/notification", notification);
 }

@@ -12,6 +12,9 @@ router.get("/get", EventController.getAllEvents);
 // Lấy chi tiết sự kiện theo ID
 router.get("/detail/:id", EventController.getEventById);
 
+// API lấy danh sách sự kiện theo userId đăng nhập hiện tại
+router.get('/organizer', authen, autho, EventController.getEventsByCurrentUser);
+
 // Cập nhật thông tin sự kiện theo ID, yêu cầu xác thực
 router.put("/update/:id", authen, autho, EventController.updateEvent);
 

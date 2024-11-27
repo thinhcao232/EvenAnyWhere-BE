@@ -111,6 +111,41 @@ exports.getEventById = async(req, res) => {
     }
 };
 
+// Lấy danh sách sự kiện theo userId từ tài khoản hiện tại
+exports.getEventsByCurrentUser = async(req, res) => {
+    try {
+        // Lấy userId từ thông tin người dùng đã xác thực
+        const userId = req.user._id;
+
+        // Tìm tất cả sự kiện có organizer_id là userId
+        const events = await Event.find({ organizer_id: userId })
+            .sort({ createdAt: -1 })
+            .lean();
+
+        if (events.length > 0) {
+            const eventsWithImages = events.map(event => ({
+                ...event,
+                images: event.images && event.images.length > 0 ?
+                    event.images.map(image => {
+                        if (image.startsWith('http')) {
+                            return image;
+                        }
+                        return `${req.protocol}://${req.get('host')}/public/eventImage/${image}`;
+                    }) : [],
+            }));
+
+            res.status(200).json({
+                message: 'Lấy danh sách sự kiện thành công!',
+                events: eventsWithImages,
+            });
+        } else {
+            res.status(404).json({ message: 'Không tìm thấy sự kiện nào của người dùng hiện tại' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: `Không thể lấy danh sách sự kiện: ${error.message}` });
+    }
+};
+
 
 exports.updateEvent = async(req, res) => {
     uploadEventImages(req, res, async(err) => {
@@ -120,11 +155,6 @@ exports.updateEvent = async(req, res) => {
 
         try {
             const { id } = req.params;
-
-            // if (req.body.haslivestream) {
-            //     req.body.haslivestream = req.body.haslivestream === 'true';
-            // }
-
             if (req.body.date) {
                 const dateString = req.body.date;
                 const [time, dayMonthYear] = dateString.split(' ');
