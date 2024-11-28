@@ -23,9 +23,8 @@ const eventSchema = new mongoose.Schema({
         required: true
     },
     images: {
-        type: [String],
-        default: []
-    }, // tối đa 6 ảnh
+        type: String,
+    },
     category_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'CategoryEvent'

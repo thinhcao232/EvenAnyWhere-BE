@@ -3,22 +3,21 @@ const uploadEventImages = require('../../utils/uploadEventImages');
 // Tạo mới sự kiện
 
 exports.createEvent = async(req, res) => {
-
-    uploadEventImages(req, res, async(err) => {
+    uploadEventImages.single('images')(req, res, async(err) => {
         if (err) {
-            return res.status(500).json({ message: 'Lỗi khi upload ảnh' });
-        } // tối đa 6 ảnh
+            return res.status(500).json({ message: 'Lỗi khi upload ảnh: ' + err.message });
+        }
 
         try {
             const organizer_id = req.user._id;
-            const { title, description, location, category_id } = req.body;
+            const { title, description, location, category_id, date } = req.body;
 
-            const { date } = req.body;
             const dateString = date;
             const [time, dayMonthYear] = dateString.split(' ');
             if (!time || !dayMonthYear) {
                 return res.status(400).json({ message: 'Định dạng ngày không hợp lệ' });
             }
+
             const [day, month, year] = dayMonthYear.split('-');
             const [hours, minutes, seconds] = time.split(':');
             if (!day || !month || !year || !hours || !minutes || !seconds) {
@@ -29,8 +28,13 @@ exports.createEvent = async(req, res) => {
             if (isNaN(eventDate.getTime())) {
                 return res.status(400).json({ message: 'Không thể chuyển đổi ngày thành định dạng hợp lệ' });
             }
+            const image = req.file ?
+                `${req.protocol}://${req.get('host')}/public/eventImage/${req.file.filename}` :
+                null;
 
-            const images = req.files ? req.files.map(file => `${req.protocol}://${req.get('host')}/public/eventImage/${file.filename}`) : [];
+            if (!image) {
+                return res.status(400).json({ message: 'Hình ảnh sự kiện là bắt buộc' });
+            }
 
             const event = new Event({
                 title,
@@ -39,13 +43,14 @@ exports.createEvent = async(req, res) => {
                 location,
                 date: eventDate,
                 category_id,
-                images: images,
+                images: image,
             });
 
             await event.save();
+
             res.status(201).json({
                 message: 'Tạo sự kiện thành công!',
-                event
+                event,
             });
         } catch (error) {
             res.status(400).json({ message: `Không thể tạo sự kiện: ${error.message}` });
@@ -55,25 +60,48 @@ exports.createEvent = async(req, res) => {
 // Lấy danh sách tất cả sự kiện
 exports.getAllEvents = async(req, res) => {
     try {
-
         const events = await Event.find().lean();
-        const eventsWithImages = events.map(event => ({
-            ...event,
-
-            images: event.images && event.images.length > 0 ?
-                event.images.map(image => {
-
-                    if (image.startsWith('http')) {
-                        return image;
-                    }
-
-                    return `${req.protocol}://${req.get('host')}/public/eventImage/${image}`;
-                }) : []
-        }));
 
         res.status(200).json({
             message: 'Lấy danh sách sự kiện thành công!',
-            events: eventsWithImages
+            events, // Trả về trực tiếp danh sách sự kiện
+        });
+    } catch (error) {
+        res.status(500).json({ message: `Không thể lấy danh sách sự kiện: ${error.message}` });
+    }
+};;
+
+
+// Lấy thông tin sự kiện theo ID
+exports.getEventById = async(req, res) => {
+    try {
+        const event = await Event.findById(req.params.id).lean();
+        if (!event) {
+            return res.status(404).json({ message: 'Không tìm thấy sự kiện' });
+        }
+
+        res.status(200).json({
+            message: 'Lấy thông tin sự kiện thành công!',
+            event,
+        });
+    } catch (error) {
+        res.status(500).json({ message: `Không thể lấy thông tin sự kiện: ${error.message}` });
+    }
+};
+
+
+// Lấy danh sách sự kiện theo userId từ tài khoản hiện tại
+exports.getEventsByCurrentUser = async(req, res) => {
+    try {
+        const userId = req.user._id;
+
+        const events = await Event.find({ organizer_id: userId })
+            .sort({ createdAt: -1 })
+            .lean();
+
+        res.status(200).json({
+            message: 'Lấy danh sách sự kiện thành công!',
+            events,
         });
     } catch (error) {
         res.status(500).json({ message: `Không thể lấy danh sách sự kiện: ${error.message}` });
@@ -82,75 +110,10 @@ exports.getAllEvents = async(req, res) => {
 
 
 
-// Lấy thông tin sự kiện theo ID
-exports.getEventById = async(req, res) => {
-    try {
-
-        const event = await Event.findById(req.params.id).lean();
-        if (event) {
-            const eventWithImages = {
-                ...event,
-                images: event.images && event.images.length > 0 ?
-                    event.images.map(image => {
-
-                        if (image.startsWith('http')) {
-                            return image;
-                        }
-                        return `${req.protocol}://${req.get('host')}/public/eventImage/${image}`;
-                    }) : []
-            };
-            res.status(200).json({
-                message: 'Lấy thông tin sự kiện thành công!',
-                event: eventWithImages
-            });
-        } else {
-            res.status(404).json({ message: 'Không tìm thấy sự kiện' });
-        }
-    } catch (error) {
-        res.status(500).json({ message: `Không thể lấy thông tin sự kiện: ${error.message}` });
-    }
-};
-
-// Lấy danh sách sự kiện theo userId từ tài khoản hiện tại
-exports.getEventsByCurrentUser = async(req, res) => {
-    try {
-        // Lấy userId từ thông tin người dùng đã xác thực
-        const userId = req.user._id;
-
-        // Tìm tất cả sự kiện có organizer_id là userId
-        const events = await Event.find({ organizer_id: userId })
-            .sort({ createdAt: -1 })
-            .lean();
-
-        if (events.length > 0) {
-            const eventsWithImages = events.map(event => ({
-                ...event,
-                images: event.images && event.images.length > 0 ?
-                    event.images.map(image => {
-                        if (image.startsWith('http')) {
-                            return image;
-                        }
-                        return `${req.protocol}://${req.get('host')}/public/eventImage/${image}`;
-                    }) : [],
-            }));
-
-            res.status(200).json({
-                message: 'Lấy danh sách sự kiện thành công!',
-                events: eventsWithImages,
-            });
-        } else {
-            res.status(404).json({ message: 'Không tìm thấy sự kiện nào của người dùng hiện tại' });
-        }
-    } catch (error) {
-        res.status(500).json({ message: `Không thể lấy danh sách sự kiện: ${error.message}` });
-    }
-};
-
-
 exports.updateEvent = async(req, res) => {
-    uploadEventImages(req, res, async(err) => {
+    uploadEventImages.single('images')(req, res, async(err) => {
         if (err) {
-            return res.status(500).json({ message: 'Lỗi khi upload ảnh' });
+            return res.status(500).json({ message: 'Lỗi khi upload ảnh: ' + err.message });
         }
 
         try {
@@ -164,23 +127,18 @@ exports.updateEvent = async(req, res) => {
 
                 const [day, month, year] = dayMonthYear.split('-');
                 const [hours, minutes, seconds] = time.split(':');
-
                 if (!day || !month || !year || !hours || !minutes || !seconds) {
                     return res.status(400).json({ message: 'Định dạng ngày hoặc giờ không hợp lệ' });
                 }
 
                 req.body.date = new Date(Date.UTC(year, month - 1, day, hours, minutes, seconds));
-
                 if (isNaN(req.body.date.getTime())) {
                     return res.status(400).json({ message: 'Không thể chuyển đổi ngày thành định dạng hợp lệ' });
                 }
             }
-            if (req.files && req.files.length > 0) {
-                const images = req.files.map(file => `${req.protocol}://${req.get('host')}/public/eventImage/${file.filename}`);
-                req.body.images = images;
+            if (req.file) {
+                req.body.images = `${req.protocol}://${req.get('host')}/public/eventImage/${req.file.filename}`;
             }
-            // console.log('Request Body:', req.body);
-            // console.log(req.'Request Files:', req.files);
             const event = await Event.findByIdAndUpdate(id, req.body, { new: true });
             if (!event) {
                 return res.status(404).json({ message: 'Không tìm thấy sự kiện để cập nhật' });
@@ -195,7 +153,6 @@ exports.updateEvent = async(req, res) => {
         }
     });
 };
-
 
 // Xóa sự kiện theo ID
 exports.deleteEvent = async(req, res) => {
