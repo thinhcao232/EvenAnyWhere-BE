@@ -1,5 +1,6 @@
 const express = require("express");
 const http = require("http");
+const path = require("path");
 const { initSocket } = require("./configs/socket.js");
 const app = express();
 const connectDB = require("./configs/database.js");
@@ -12,6 +13,7 @@ const server = http.createServer(app)
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
 Routes(app);
 

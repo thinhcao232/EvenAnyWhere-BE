@@ -22,9 +22,6 @@ const sessionSchema = mongoose.Schema({
         type: Date,
         required: true
     },
-    maxAttendees: {
-        type: Number
-    },
     location: {
         type: String,
         required: true

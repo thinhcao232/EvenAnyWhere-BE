@@ -4,7 +4,7 @@ const Session = require('../models/session.model');
 exports.createSession = async(req, res) => {
     try {
         const { event_id } = req.params;
-        const { title, description, start_time, end_time, location, maxAttendees, isLiveStream } = req.body;
+        const { title, description, start_time, end_time, location } = req.body;
 
         // Chuyển đổi thời gian từ định dạng HH:mm:ss DD-MM-YYYY sang ISO
         const [startTimeStr, startDateStr] = start_time.split(' ');
@@ -23,9 +23,7 @@ exports.createSession = async(req, res) => {
             description,
             start_time: startTimeISO,
             end_time: endTimeISO,
-            location,
-            maxAttendees,
-            isLiveStream,
+            location
         });
 
         const savedSession = await newSession.save();
