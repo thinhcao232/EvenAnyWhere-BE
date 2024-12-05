@@ -7,7 +7,6 @@ const connectDB = require("./configs/database.js");
 const Routes = require("./routers/index.js");
 require("dotenv").config();
 const cookieParser = require("cookie-parser");
-require("./utils/cronJobs.js");
 const server = http.createServer(app)
 
 app.use(express.json());

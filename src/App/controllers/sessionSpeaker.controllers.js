@@ -3,7 +3,7 @@ const AccountUser = require('../models/accountUser.model');
 
 exports.addSpeakerByEmail = async(req, res) => {
     try {
-        const { session_id, email, speaker_end_time } = req.body;
+        const { session_id, email, position } = req.body;
 
         const attendee = await AccountUser.findOne({ email });
         if (!attendee) {
@@ -13,28 +13,15 @@ exports.addSpeakerByEmail = async(req, res) => {
         if (existingSessionSpeaker) {
             return res.status(400).json({ message: 'Người dùng đã là speaker trong phiên này' });
         }
-
-        const [endTimeStr, endDateStr] = speaker_end_time.split(' ');
-        const [endDay, endMonth, endYear] = endDateStr.split('-');
-        const [endHour, endMinute, endSecond] = endTimeStr.split(':');
-        const speakerEndTimeISO = new Date(Date.UTC(endYear, endMonth - 1, endDay, endHour, endMinute, endSecond));
-
-        const currentTime = new Date();
-        if (speakerEndTimeISO < currentTime) {
-            return res.status(400).json({ message: 'Thời gian kết thúc phải lớn hơn thời gian hiện tại.' });
-        }
         attendee.activeSpeaker = true;
-        attendee.speaker_end_time = speakerEndTimeISO;
         await attendee.save();
 
         const newSessionSpeaker = new SessionSpeaker({
             session_id,
             email: attendee.email,
-            endTime: speakerEndTimeISO
+            position
         });
-
         await newSessionSpeaker.save();
-
         res.status(201).json({
             message: 'Đã thêm speaker vào phiên thành công!',
             sessionSpeaker: newSessionSpeaker,

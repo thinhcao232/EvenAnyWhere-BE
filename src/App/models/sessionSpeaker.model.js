@@ -4,15 +4,16 @@ const sessionSpeakerSchema = new mongoose.Schema({
     session_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Session',
-        required: true,
+        required: true
     },
     email: {
         type: String,
         ref: 'accountUser',
-        required: true,
+        required: true
     },
-    endTime: {
-        type: Date
+    position: {
+        type: String,
+        required: true
     }
 }, { timestamps: true });
 
