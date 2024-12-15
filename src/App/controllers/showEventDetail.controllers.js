@@ -31,6 +31,7 @@ exports.getEventDetails = async(req, res) => {
                         return {
                             id: speakerDetails._id,
                             name: speakerDetails.name,
+                            position: speaker.position,
                             bio: speakerDetails.description,
                             profileImageUrl: speakerDetails.image,
                         };
@@ -40,6 +41,8 @@ exports.getEventDetails = async(req, res) => {
                 return {
                     id: session._id,
                     title: session.title,
+                    description: session.description,
+                    location: session.location,
                     startTime: session.start_time,
                     endTime: session.end_time,
                     sessionSpeakers: sessionSpeakerDetails,
@@ -62,6 +65,8 @@ exports.getEventDetails = async(req, res) => {
                 speakerList.push({
                     id: speakerDetails._id,
                     name: speakerDetails.name,
+                    position: speaker.position,
+                    bio: speakerDetails.description,
                     profileImageUrl: speakerDetails.image,
                 });
             }

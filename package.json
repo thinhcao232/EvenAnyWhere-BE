@@ -3,13 +3,15 @@
     "version": "1.0.0",
     "main": "index.js",
     "scripts": {
-        "start": "nodemon --inspect src/app.js",
+        "start": "kill-port 3000 && nodemon src/app.js",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "author": "",
     "license": "ISC",
     "description": "",
     "dependencies": {
+
+        "@faker-js/faker": "^9.3.0",
         "axios": "^1.7.9",
         "bcrypt": "^5.1.1",
         "cookie-parser": "^1.4.7",

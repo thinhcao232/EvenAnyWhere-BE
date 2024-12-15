@@ -288,21 +288,140 @@ class Account {
             });
 
             const mailOptions = {
-                from: process.env.EMAIL_USER, // email gửi
+                from: {
+                    name: "EventAnyWhere",
+                    address: process.env.EMAIL_USER
+                }, // email gửi
                 to: user.email,
                 subject: 'Mật khẩu mới cho tài khoản của bạn trong ứng dụng EventAnywhere',
-                text: `Xin chào ${user.name},
-
-Chúng tôi đã nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn tại ứng dụng EventAnywhere. Đây là mật khẩu mới của bạn:
-
-        Mật Khẩu Mới: ${newPassword}
-
-Vì lý do bảo mật, chúng tôi khuyên bạn nên đăng nhập vào tài khoản của mình và thay đổi mật khẩu này ngay sau khi nhận được email này. 
-Nếu bạn không yêu cầu đặt lại mật khẩu, xin vui lòng liên hệ với bộ phận hỗ trợ của chúng tôi ngay lập tức để đảm bảo tài khoản của bạn an toàn.
-Cảm ơn bạn đã tin tưởng và sử dụng EventAnywhere.
-
-Trân trọng,
-Đội ngũ hỗ trợ EventAnywhere.`,
+                html: `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Reset</title>
+    <style>
+        /* Reset styles for email clients */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.6;
+            background-color: #f4f4f4;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .email-header {
+            background-color: #4F46E5;
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .email-header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        .email-body {
+            padding: 30px 20px;
+            color: #333333;
+        }
+        
+        .password-box {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .password-text {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4F46E5;
+            letter-spacing: 2px;
+            margin: 0;
+        }
+        
+        .warning-text {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+        
+        .email-footer {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #666666;
+        }
+        
+        .button {
+            display: inline-block;
+            background-color: #4F46E5;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+        
+        /* Responsive design */
+        @media only screen and (max-width: 600px) {
+            .email-container {
+                width: 100%;
+                margin: 0;
+                border-radius: 0;
+            }
+            
+            .email-header {
+                padding: 20px 15px;
+            }
+            
+            .email-body {
+                padding: 20px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="email-header">
+            <h1>EventAnyWhere 📧</h1>
+        </div>
+        
+        <div class="email-body">
+            <p>Xin chào ${user.name},</p>
+            
+            <p>Chúng tôi đã nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn tại ứng dụng EventAnywhere.</p>
+            
+            <p>Đây là mật khẩu mới của bạn:</p>
+            
+            <div class="password-box">
+                <p class="password-text">${newPassword}</p>
+            </div>
+            
+            <p><strong>Vì lý do bảo mật:</strong> Chúng tôi khuyên bạn nên đăng nhập vào tài khoản của mình và thay đổi mật khẩu này ngay sau khi nhận được email này.</p>         
+            <p class="warning-text">⚠️ Nếu bạn không yêu cầu đặt lại mật khẩu, xin vui lòng liên hệ với bộ phận hỗ trợ của chúng tôi ngay lập tức để đảm bảo tài khoản của bạn an toàn.</p>
+        </div>
+        
+        <div class="email-footer">
+            <p>Cảm ơn bạn đã tin tưởng và sử dụng EventAnywhere.</p>
+            <p>Trân trọng,<br>Đội ngũ hỗ trợ EventAnywhere</p>
+        </div>
+    </div>
+</body>
+</html>`,
             };
 
             await transporter.sendMail(mailOptions);

@@ -2,7 +2,8 @@ const express = require("express");
 const router = express.Router();
 const aiDataController = require('../App/controllers/aiData.controllers');
 
-// Route trả về ma trận cho AI
-router.get('/data', aiDataController.getMatrixForAI);
+router.get('/user', aiDataController.getUsers);
+router.get('/event', aiDataController.getEvents);
+router.get('/join', aiDataController.getJoin);
 
 module.exports = router;

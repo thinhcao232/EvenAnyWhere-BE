@@ -10,8 +10,7 @@
             required: true
         },
         userMail: {
-            type: [String],
-            default: null
+            type: [String]
         },
     }, { timestamps: true });
 

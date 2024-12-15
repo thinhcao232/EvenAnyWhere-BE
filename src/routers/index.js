@@ -10,6 +10,7 @@ const sessionSpeakerRouter = require('./sessionSpeaker.router');
 const eventDetail = require("./showEventDetail.router");
 const notification = require('./notification.router');
 const aiData = require('./aiData.router');
+const recommend = require('./recommendation.router')
 module.exports = (app) => {
     app.use("/accounts", accountRouter);
     app.use("/event", eventRouter);
@@ -22,5 +23,6 @@ module.exports = (app) => {
     app.use("/speaker", sessionSpeakerRouter);
     app.use("/show/event", eventDetail);
     app.use("/notification", notification);
-    app.use("/api", aiData);
+    app.use("/data", aiData);
+    app.use("/api", recommend);
 }

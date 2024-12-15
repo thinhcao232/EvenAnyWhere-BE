@@ -1,31 +1,28 @@
 const Notification = require('../models/notification.model');
-const { getIO } = require('../../configs/socket');
+const AccountUser = require('../models/accountUser.model');
 
 // Tạo thông báo
 exports.createNotification = async(req, res) => {
     try {
         const { title, message, userMail } = req.body;
-
-        // Tạo thông báo mới
+        let emails = [];
+        if (userMail && Array.isArray(userMail) && userMail.length > 0) {
+            const users = await AccountUser.find({ email: { $in: userMail } }).select('email');
+            emails = users.map(user => user.email);
+        }
         const notification = new Notification({
             title,
             message,
-            userMail: userMail || null // Nếu không có userMail, thông báo gửi cho tất cả
+            userMail: emails.length > 0 ? emails : null, // Nếu không có email, gửi cho tất cả
         });
 
         await notification.save();
-
-        // Gửi thông báo realtime qua WebSocket
-        const io = getIO();
-        io.emit('receiveNotification', {
-            title,
-            message,
-            userMail: userMail || 'all' // Nếu null, mặc định gửi cho tất cả
-        });
+        const notifications = await Notification.find()
+            .sort({ createdAt: -1 });
 
         res.status(201).json({
             message: 'Notification created successfully',
-            notification,
+            notification: notifications[0],
         });
     } catch (error) {
         res.status(500).json({
@@ -34,29 +31,40 @@ exports.createNotification = async(req, res) => {
         });
     }
 };
-
-// Lấy thông báo của một người dùng (dựa vào email)
 exports.getUserNotifications = async(req, res) => {
     try {
-        const userMail = req.params.email;
+        const userId = req.user._id;
+        const user = await AccountUser.findById(userId);
+        if (!user) {
+            return res.status(404).json({
+                message: 'User not found.',
+            });
+        }
 
+        const userMail = user.email;
         const notifications = await Notification.find({
             $or: [
-                { userMail: null }, // Thông báo gửi cho tất cả
-                { userMail: userMail }, // Thông báo dành riêng cho người dùng này
-            ],
-        });
+                { userMail: null },
+                { userMail: userMail }
+            ]
+        }).sort({ createdAt: -1 });
 
+        console.log("Thông báo tìm được:", notifications);
+        if (notifications.length === 0) {
+            return res.status(404).json({
+                message: 'No notifications found for this user.',
+            });
+        }
         res.status(200).json({ notifications });
     } catch (error) {
+        console.error("Lỗi khi lấy thông báo:", error);
         res.status(500).json({
             message: 'Error fetching notifications',
-            error,
+            error: error.message || error,
         });
     }
 };
-
-// Xóa một thông báo dựa vào id
+// Xóa một thông báo dựa vào id notification
 exports.deleteNotification = async(req, res) => {
     try {
         const notificationId = req.params.id;
@@ -68,7 +76,6 @@ exports.deleteNotification = async(req, res) => {
                 message: 'Notification not found',
             });
         }
-
         res.status(200).json({
             message: 'Notification deleted successfully',
             deletedNotification,
