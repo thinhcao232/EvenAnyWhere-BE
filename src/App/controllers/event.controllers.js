@@ -13,20 +13,27 @@ exports.createEvent = async(req, res) => {
             const { title, description, location, category_id, date } = req.body;
 
             const dateString = date;
-            const [time, dayMonthYear] = dateString.split(' ');
-            if (!time || !dayMonthYear) {
-                return res.status(400).json({ message: 'Định dạng ngày không hợp lệ' });
+
+            const [dayMonthYear, time] = dateString.split(' ');
+            if (!dayMonthYear || !time) {
+                return res.status(400).json({ message: 'Định dạng ngày không hợp lệ. Định dạng đúng là: dd-mm-yyyy hh:mm:ss' });
             }
 
             const [day, month, year] = dayMonthYear.split('-');
             const [hours, minutes, seconds] = time.split(':');
-            if (!day || !month || !year || !hours || !minutes || !seconds) {
-                return res.status(400).json({ message: 'Định dạng ngày hoặc giờ không hợp lệ' });
+
+           
+            if (
+                !day || !month || !year || !hours || !minutes || !seconds ||
+                isNaN(day) || isNaN(month) || isNaN(year) || isNaN(hours) || isNaN(minutes) || isNaN(seconds)
+            ) {
+                return res.status(400).json({ message: 'Định dạng ngày hoặc giờ không hợp lệ.' });
             }
 
+           
             const eventDate = new Date(Date.UTC(year, month - 1, day, hours, minutes, seconds));
             if (isNaN(eventDate.getTime())) {
-                return res.status(400).json({ message: 'Không thể chuyển đổi ngày thành định dạng hợp lệ' });
+                return res.status(400).json({ message: 'Không thể chuyển đổi ngày thành định dạng hợp lệ.' });
             }
             const image = req.file ?
                 `${req.protocol}://${req.get('host')}/public/eventImage/${req.file.filename}` :

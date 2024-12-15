@@ -12,7 +12,12 @@ const accountSchema = mongoose.Schema({
     },
     password: {
         type: String,
-        required: true
+        required: function () { return !this.googleId && !this.facebookId; }
+    },
+    googleId: {
+        type: String,  
+        unique: true,
+        sparse: true  
     },
     image: {
         type: String,

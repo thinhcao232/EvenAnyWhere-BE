@@ -7,6 +7,10 @@ const jwt = require("jsonwebtoken");
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const upload = require('../../utils/uploadImageAVT');
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const passport = require('../../configs/passport');
+const axios = require("axios");
 const saltRounds = 10;
 
 class Account {
@@ -393,7 +397,64 @@ Trân trọng,
             return res.status(500).json({ title: "Lỗi", message: "Có lỗi xảy ra khi cập nhật vai trò" });
         }
     }
-
+    async  googleLogin(req, res) {
+        const { idToken, platform } = req.body;
+    
+        // Kiểm tra token đầu vào
+        if (!idToken) {
+            return res.status(400).json({
+                title: "Lỗi",
+                message: "idToken là bắt buộc",
+            });
+        }
+    
+        try {
+            // Xác thực token với Google
+            const ticket = await client.verifyIdToken({
+                idToken: idToken,
+                // audience: process.env.GOOGLE_CLIENT_ID, // Đảm bảo khớp với Client ID trong Google Cloud Console
+            });
+            const payload = ticket.getPayload();
+    
+            // Lấy thông tin người dùng từ payload
+            const user = {
+                googleId: payload["sub"],
+                email: payload["email"],
+                name: payload["name"],
+                image: payload["picture"],
+            };
+    
+            // Tìm hoặc tạo người dùng trong cơ sở dữ liệu
+            let existingUser = await AccountModal.findOne({ googleId: user.googleId });
+            if (!existingUser) {
+                existingUser = await AccountModal.create(user);
+            }
+    
+            // Tạo token truy cập và làm mới
+            const refreshToken = generateRefreshToken(existingUser._id);
+            const accessToken = generateAccessToken(existingUser._id);
+    
+            // Gửi response với các token và thông tin người dùng
+            return res.status(200).json({
+                message: `Đăng nhập Google thành công từ ${platform || "unknown platform"}`,
+                user: {
+                    _id: existingUser._id,
+                    name: existingUser.name,
+                    email: existingUser.email,
+                    image: existingUser.image,
+                },
+                tokenAccess: accessToken,
+                tokenRefresh: refreshToken,
+            });
+        } catch (error) {
+            console.error("Google Login Error:", error.message);
+            return res.status(401).json({
+                title: "Lỗi",
+                message: "Token Google không hợp lệ",
+                error: error.message,
+            });
+        }
+    }
 }
 
 module.exports = new Account();
