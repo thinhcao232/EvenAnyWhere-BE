@@ -22,15 +22,14 @@ exports.createEvent = async(req, res) => {
             const [day, month, year] = dayMonthYear.split('-');
             const [hours, minutes, seconds] = time.split(':');
 
-           
-            if (
-                !day || !month || !year || !hours || !minutes || !seconds ||
+
+            if (!day || !month || !year || !hours || !minutes || !seconds ||
                 isNaN(day) || isNaN(month) || isNaN(year) || isNaN(hours) || isNaN(minutes) || isNaN(seconds)
             ) {
                 return res.status(400).json({ message: 'Định dạng ngày hoặc giờ không hợp lệ.' });
             }
 
-           
+
             const eventDate = new Date(Date.UTC(year, month - 1, day, hours, minutes, seconds));
             if (isNaN(eventDate.getTime())) {
                 return res.status(400).json({ message: 'Không thể chuyển đổi ngày thành định dạng hợp lệ.' });
@@ -57,7 +56,7 @@ exports.createEvent = async(req, res) => {
 
             res.status(201).json({
                 message: 'Tạo sự kiện thành công!',
-                event,
+                event
             });
         } catch (error) {
             res.status(400).json({ message: `Không thể tạo sự kiện: ${error.message}` });

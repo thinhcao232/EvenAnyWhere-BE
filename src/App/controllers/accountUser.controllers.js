@@ -516,9 +516,9 @@ class Account {
             return res.status(500).json({ title: "Lỗi", message: "Có lỗi xảy ra khi cập nhật vai trò" });
         }
     }
-    async  googleLogin(req, res) {
+    async googleLogin(req, res) {
         const { idToken, platform } = req.body;
-    
+
         // Kiểm tra token đầu vào
         if (!idToken) {
             return res.status(400).json({
@@ -526,7 +526,7 @@ class Account {
                 message: "idToken là bắt buộc",
             });
         }
-    
+
         try {
             // Xác thực token với Google
             const ticket = await client.verifyIdToken({
@@ -534,7 +534,7 @@ class Account {
                 // audience: process.env.GOOGLE_CLIENT_ID, // Đảm bảo khớp với Client ID trong Google Cloud Console
             });
             const payload = ticket.getPayload();
-    
+
             // Lấy thông tin người dùng từ payload
             const user = {
                 googleId: payload["sub"],
@@ -542,17 +542,17 @@ class Account {
                 name: payload["name"],
                 image: payload["picture"],
             };
-    
+
             // Tìm hoặc tạo người dùng trong cơ sở dữ liệu
             let existingUser = await AccountModal.findOne({ googleId: user.googleId });
             if (!existingUser) {
                 existingUser = await AccountModal.create(user);
             }
-    
+
             // Tạo token truy cập và làm mới
             const refreshToken = generateRefreshToken(existingUser._id);
             const accessToken = generateAccessToken(existingUser._id);
-    
+
             // Gửi response với các token và thông tin người dùng
             return res.status(200).json({
                 message: `Đăng nhập Google thành công từ ${platform || "unknown platform"}`,

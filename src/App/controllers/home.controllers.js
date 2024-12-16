@@ -23,18 +23,28 @@ exports.filterEvents = async(req, res) => {
     try {
         const { category_id, dateOption, location, date } = req.query;
         const filter = {};
+        // Lọc theo nhiều thể loại (category_id)
         if (category_id) {
-            filter.category_id = category_id;
+            const categoryIds = category_id.split(',').map((id) => id.trim());
+            filter.category_id = { $in: categoryIds };
         }
+        // Lọc theo ngày cụ thể (định dạng dd-mm-yyyy)
         if (date) {
-            const selectedDate = new Date(date);
+            const [day, month, year] = date.split('-');
+            if (!day || !month || !year ||
+                isNaN(day) || isNaN(month) || isNaN(year)
+            ) {
+                return res.status(400).json({ message: 'Ngày không hợp lệ. Định dạng yêu cầu là dd-mm-yyyy' });
+            }
+
+            const selectedDate = new Date(Date.UTC(year, month - 1, day));
             if (!isNaN(selectedDate)) {
                 filter.date = {
                     $gte: selectedDate.setHours(0, 0, 0, 0),
-                    $lt: selectedDate.setHours(23, 59, 59, 999)
+                    $lt: selectedDate.setHours(23, 59, 59, 999),
                 };
             } else {
-                return res.status(400).json({ message: 'Ngày không hợp lệ' });
+                return res.status(400).json({ message: 'Không thể chuyển đổi ngày thành định dạng hợp lệ.' });
             }
         }
         if (dateOption) {
