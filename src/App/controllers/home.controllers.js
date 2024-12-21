@@ -74,17 +74,14 @@ exports.filterEvents = async(req, res) => {
             filter.location = { $regex: location, $options: 'i' };
         }
 
-        const events = await Event.find(filter).lean();
+        const events = await Event.find(filter).sort({ createdAt: -1 }).lean();
 
-        // Kiểm tra nếu không tìm thấy sự kiện nào
         if (events.length === 0) {
             return res.status(404).json({
                 message: 'Không tìm thấy sự kiện nào!',
                 events: []
             });
         }
-
-        // Trả về sự kiện nếu tìm thấy
         res.status(200).json({
             message: 'Lọc sự kiện thành công!',
             events

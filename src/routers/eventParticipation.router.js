@@ -5,5 +5,5 @@ const authen = require("../App/middlewares/authen");
 
 
 router.post('/join', authen, eventParticipationController.joinEvent);
-
+router.post('/checkJoin', authen, eventParticipationController.checkHasJoin);
 module.exports = router;
