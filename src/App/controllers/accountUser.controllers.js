@@ -120,7 +120,7 @@ class Account {
                 expires: new Date(Date.now() + 30 * 24 * 3600000), // 30 days
             });
 
-            const { image, name, email, role, _id, phone, gender, description, address, hobbies } = user;
+            const { image, name, email, role, _id, phone, gender, description, address, hobbies, activeSpeaker } = user;
             return res.status(200).json({
                 message: "Đăng Nhập Thành Công",
                 user: {
@@ -133,7 +133,8 @@ class Account {
                     gender,
                     description,
                     address,
-                    hobbies
+                    hobbies,
+                    activeSpeaker
                 },
                 tokenAccess: accessToken,
                 tokenRefresh: refreshToken
