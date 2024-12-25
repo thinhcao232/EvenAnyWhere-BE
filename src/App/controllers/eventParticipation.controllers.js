@@ -49,7 +49,10 @@ exports.checkHasJoin = async(req, res) => {
         const participation = await EventParticipation.findOne({ account_id: userId, event_id: eventId });
 
         if (!participation) {
-            return res.status(404).json({ message: 'Không tìm thấy thông tin tham gia sự kiện.' });
+            return res.status(404).json({
+                message: 'Không tìm thấy thông tin tham gia sự kiện.',
+                data: { hasJoin: false }
+            });
         }
 
         return res.status(200).json({
@@ -57,8 +60,8 @@ exports.checkHasJoin = async(req, res) => {
             data: {
                 account_id: participation.account_id,
                 event_id: participation.event_id,
-                hasJoin: participation.hasJoin
-            }
+                hasJoin: participation.hasJoin,
+            },
         });
     } catch (error) {
         res.status(500).json({ message: 'Lỗi khi kiểm tra trạng thái tham gia.', error });

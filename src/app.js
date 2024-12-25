@@ -1,6 +1,7 @@
 const express = require("express");
 const http = require("http");
 const path = require("path");
+const deactivateSpeakersAfterSessionEnd = require('./App/middlewares/cronJobs.js');
 const { initSocket } = require("./configs/socket.js");
 const app = express();
 const connectDB = require("./configs/database.js");
@@ -20,7 +21,7 @@ Routes(app);
 connectDB();
 
 initSocket(server);
-
+deactivateSpeakersAfterSessionEnd();
 // Start Server
 const PORT = process.env.PORT || 3000;
 

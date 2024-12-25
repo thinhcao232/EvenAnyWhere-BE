@@ -21,9 +21,6 @@ const adminSchema = new mongoose.Schema({
     phone: {
         type: String
     },
-    token: [{
-        type: String
-    }],
     createdAt: {
         type: Date,
         default: Date.now
